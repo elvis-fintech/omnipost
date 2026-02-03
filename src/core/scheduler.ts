@@ -1,12 +1,11 @@
 // 排程系統
-import cron from 'node-cron';
-import { GeneratedContent } from '../platforms/types.js';
 import { contentGenerator } from './generator.js';
 import logger from '../utils/logger.js';
+import type { ContentInput } from '../utils/validator.js';
 
 interface ScheduledPost {
   id: string;
-  input: any;
+  input: ContentInput;
   scheduledAt: Date;
   platforms: string[];
   status: 'pending' | 'published' | 'failed';
@@ -15,7 +14,7 @@ interface ScheduledPost {
 export class Scheduler {
   private jobs: Map<string, ScheduledPost> = new Map();
 
-  schedulePost(input: any, scheduledAt: Date, platforms: string[]): string {
+  schedulePost(input: ContentInput, scheduledAt: Date, platforms: string[]): string {
     const id = `post_${Date.now()}`;
     
     const post: ScheduledPost = {
@@ -32,10 +31,10 @@ export class Scheduler {
     const delay = scheduledAt.getTime() - Date.now();
     
     if (delay > 0) {
-      setTimeout(() => this.executePost(id), delay);
+      setTimeout(() => { void this.executePost(id); }, delay);
       logger.info(`Scheduled post ${id} for ${scheduledAt.toISOString()}`);
     } else {
-      this.executePost(id);
+      void this.executePost(id);
     }
 
     return id;
@@ -49,9 +48,9 @@ export class Scheduler {
       post.status = 'published';
       
       for (const platform of post.platforms) {
-        const content = await contentGenerator.generate({
+        await contentGenerator.generate({
           ...post.input,
-          targetPlatform: platform
+          targetPlatform: platform as 'threads' | 'linkedin' | 'instagram'
         });
         
         logger.info(`Executed scheduled post for ${platform}`, { postId: id });

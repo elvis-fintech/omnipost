@@ -1,6 +1,6 @@
 // AI 內容生成器
 import OpenAI from 'openai';
-import { ContentInput, GeneratedContent } from '../platforms/types.js';
+import type { ContentInput, GeneratedContent } from '../platforms/types.js';
 import logger from '../utils/logger.js';
 import { config } from '../config/index.js';
 import { saveGeneratedPost, getRecentPosts } from '../db/index.js';
@@ -63,14 +63,14 @@ Hashtags: ${input.hashtags ? '需要' : '不需要'}`;
       const id = randomUUID();
 
       // Save to database
-      saveGeneratedPost({
+      void saveGeneratedPost({
         id,
         original_content: input.originalContent,
         platform: input.targetPlatform,
         generated_content: text,
         tone: input.tone,
-        hashtags: input.hashtags,
-        media_urls: input.mediaUrls?.join(',')
+        hashtags: input.hashtags ?? false,
+        media_urls: input.mediaUrls?.join(',') ?? undefined
       });
 
       logger.info(`Generated content for ${input.targetPlatform}`, {

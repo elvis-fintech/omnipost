@@ -1,7 +1,7 @@
 // LinkedIn 平台適配器
 import axios from 'axios';
 import { PlatformAdapter } from '../core/adapter.js';
-import { GeneratedContent, PostResult } from '../platforms/types.js';
+import type { GeneratedContent, PostResult } from '../platforms/types.js';
 import logger from '../utils/logger.js';
 
 export class LinkedInAdapter extends PlatformAdapter {
@@ -12,7 +12,7 @@ export class LinkedInAdapter extends PlatformAdapter {
     const endpoint = 'https://api.linkedin.com/v2/ugcPosts';
 
     try {
-      const response = await axios.post(endpoint, {
+      const response = await axios.post<{ id: string }>(endpoint, {
         author: `urn:li:person:${this.credentials.userId}`,
         lifecycleState: 'PUBLISHED',
         specificContent: {
@@ -34,10 +34,12 @@ export class LinkedInAdapter extends PlatformAdapter {
         }
       });
 
+      const postId = response.data.id;
+
       return {
         success: true,
-        postId: response.data.id,
-        url: `https://www.linkedin.com/feed/update/${response.data.id}`
+        postId,
+        url: `https://www.linkedin.com/feed/update/${postId}`
       };
     } catch (error) {
       logger.error('LinkedIn post failed', { error });

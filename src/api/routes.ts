@@ -14,7 +14,7 @@ const app = new Hono();
 // Generate content for a platform
 app.post('/generate', async (c) => {
   try {
-    const body = await c.req.json();
+    const body = await c.req.json<{ originalContent: string; targetPlatform: string; tone?: string; hashtags?: boolean }>();
     const validated = ContentInputSchema.parse(body);
 
     const content = await contentGenerator.generate(validated);
@@ -66,7 +66,7 @@ app.get('/history/:platform', async (c) => {
 // Post to a single platform
 app.post('/post/:platform', async (c) => {
   const platform = c.req.param('platform') as 'threads' | 'linkedin' | 'instagram';
-  const body = await c.req.json();
+  const body = await c.req.json<{ content: { text: string } }>();
 
   try {
     const adapters = {
@@ -91,7 +91,7 @@ app.post('/post/:platform', async (c) => {
 // Schedule a post
 app.post('/schedule', async (c) => {
   try {
-    const body = await c.req.json();
+    const body = await c.req.json<{ content: { originalContent: string; targetPlatform: string; tone?: string; hashtags?: boolean }; scheduledAt: string; platforms: string[] }>();
     const { content, scheduledAt, platforms } = body;
 
     const postId = scheduler.schedulePost(

@@ -1,5 +1,5 @@
 // 平台適配器 base class
-import { 
+import type { 
   PlatformType, 
   GeneratedContent, 
   PostResult,

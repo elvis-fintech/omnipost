@@ -1,7 +1,7 @@
 // PlatformAdapter Tests
 import { describe, it, expect } from 'vitest';
 import { PlatformAdapter } from './adapter';
-import { PlatformType } from '../platforms/types';
+import type { PlatformType } from '../platforms/types';
 
 describe('PlatformAdapter', () => {
   // Mock adapter for testing base class behavior

@@ -15,10 +15,10 @@ if (dbPath !== ':memory:' && !fs.existsSync(dataDir)) {
 const db = new Database(dbPath);
 
 // Enable WAL mode for better performance
-db.pragma('journal_mode = WAL');
+void db.pragma('journal_mode = WAL');
 
 // Create tables
-db.exec(`
+void db.exec(`
   CREATE TABLE IF NOT EXISTS generated_posts (
     id TEXT PRIMARY KEY,
     original_content TEXT NOT NULL,
@@ -134,7 +134,7 @@ export function savePostHistory(history: PostHistory): string {
 // Update post status
 export function updatePostStatus(id: string, status: Partial<PostHistory>): void {
   const updates: string[] = [];
-  const values: any[] = [];
+  const values: (string | number | null | undefined)[] = [];
 
   if (status.post_id !== undefined) {
     updates.push('post_id = ?');
