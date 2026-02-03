@@ -6,6 +6,7 @@ import { ThreadsAdapter } from '../platforms/threads.js';
 import { LinkedInAdapter } from '../platforms/linkedin.js';
 import { InstagramAdapter } from '../platforms/instagram.js';
 import { ContentInputSchema } from '../utils/validator.js';
+import { getRecentPosts } from '../db/index.js';
 import logger from '../utils/logger.js';
 
 const app = new Hono();
@@ -21,6 +22,40 @@ app.post('/generate', async (c) => {
     return c.json({ success: true, data: content });
   } catch (error) {
     logger.error('Generate API error', { error });
+    return c.json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    }, 400);
+  }
+});
+
+// Get generated posts history
+app.get('/history', async (c) => {
+  const platform = c.req.query('platform');
+  const limit = parseInt(c.req.query('limit') || '10', 10);
+  
+  try {
+    const posts = getRecentPosts(platform, limit);
+    return c.json({ success: true, data: posts });
+  } catch (error) {
+    logger.error('History API error', { error });
+    return c.json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    }, 400);
+  }
+});
+
+// Get history by platform
+app.get('/history/:platform', async (c) => {
+  const platform = c.req.param('platform');
+  const limit = parseInt(c.req.query('limit') || '10', 10);
+  
+  try {
+    const posts = getRecentPosts(platform, limit);
+    return c.json({ success: true, data: posts });
+  } catch (error) {
+    logger.error('History API error', { error, platform });
     return c.json({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 

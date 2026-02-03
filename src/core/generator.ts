@@ -3,6 +3,8 @@ import OpenAI from 'openai';
 import { ContentInput, GeneratedContent } from '../platforms/types.js';
 import logger from '../utils/logger.js';
 import { config } from '../config/index.js';
+import { saveGeneratedPost, getRecentPosts } from '../db/index.js';
+import { randomUUID } from 'crypto';
 
 const openai = new OpenAI({
   apiKey: config.openaiApiKey
@@ -33,10 +35,16 @@ const PLATFORM_PROMPTS = {
 };
 
 export class ContentGenerator {
-  async generate(input: ContentInput): Promise<GeneratedContent> {
+  async generate(input: ContentInput): Promise<GeneratedContent & { id: string }> {
     const platformPrompt = PLATFORM_PROMPTS[input.targetPlatform];
     
-    const systemPrompt = `${platformPrompt}
+    // Get recent posts for context
+    const recentPosts = getRecentPosts(input.targetPlatform, 3);
+    const historyContext = recentPosts.length > 0 
+      ? `\n\n注意：以下是最近生成的內容，請保持類似的風格：\n${recentPosts.map(p => `- "${p.generated_content}"`).join('\n')}`
+      : '';
+
+    const systemPrompt = `${platformPrompt}${historyContext}
 
 當前風格要求: ${input.tone || 'default'}
 Hashtags: ${input.hashtags ? '需要' : '不需要'}`;
@@ -52,13 +60,27 @@ Hashtags: ${input.hashtags ? '需要' : '不需要'}`;
       });
 
       const text = response.choices[0]?.message?.content || '';
+      const id = randomUUID();
+
+      // Save to database
+      saveGeneratedPost({
+        id,
+        original_content: input.originalContent,
+        platform: input.targetPlatform,
+        generated_content: text,
+        tone: input.tone,
+        hashtags: input.hashtags,
+        media_urls: input.mediaUrls?.join(',')
+      });
 
       logger.info(`Generated content for ${input.targetPlatform}`, {
         platform: input.targetPlatform,
+        postId: id,
         length: text.length
       });
 
       return {
+        id,
         platform: input.targetPlatform,
         text,
         media: input.mediaUrls?.map(url => ({

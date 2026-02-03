@@ -23,10 +23,55 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
+    "id": "uuid-here",
     "platform": "linkedin",
-    "text": "Generated content..."
+    "text": "Generated content...",
+    "media": [...]
   }
 }
+```
+
+---
+
+### Get History
+
+Get generated posts history.
+
+```bash
+# All platforms
+GET /history
+
+# Filter by platform
+GET /history?platform=linkedin
+
+# With limit
+GET /history?platform=linkedin&limit=5
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid-here",
+      "original_content": "Your original content",
+      "platform": "linkedin",
+      "generated_content": "Generated content...",
+      "tone": "professional",
+      "created_at": "2024-01-15T10:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+### Get History by Platform
+
+```bash
+GET /history/:platform
+GET /history/threads?limit=10
 ```
 
 ---
@@ -122,3 +167,9 @@ npm run dev
 ```bash
 npm test
 ```
+
+## Database
+
+SQLite database is auto-created in `data/crossreach.db` on first run. Contains:
+- `generated_posts` - All generated content with history
+- `post_history` - Publishing status tracking

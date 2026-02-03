@@ -11,6 +11,7 @@
 - **AI 內容生成** — 根據用戶輸入，生成符合各平台風格的內容
 - **平台適配** — Threads、LinkedIn、Instagram 各自優化
 - **排程發布** — 預設時間自動發布
+- **內容歷史** — 儲存生成記錄，保持風格一致性
 - **REST API** — 簡單易用
 
 ## Project Structure
@@ -33,18 +34,21 @@ CrossReach/
 │   │   ├── generator.ts   # AI content generation
 │   │   ├── adapter.ts     # Platform adapter base
 │   │   └── scheduler.ts   # Post scheduling
+│   ├── db/
+│   │   └── index.ts       # SQLite database
 │   ├── platforms/
 │   │   ├── types.ts       # Shared types
 │   │   ├── threads.ts     # Threads adapter
 │   │   ├── linkedin.ts    # LinkedIn adapter
-│   │   └── instagram.ts  # Instagram adapter
+│   │   └── instagram.ts   # Instagram adapter
 │   └── utils/
-│       ├── logger.ts      # Winston logger
-│       └── validator.ts   # Zod schemas
+│       ├── logger.ts       # Winston logger
+│       └── validator.ts    # Zod schemas
 ├── tests/
 │   └── README.md
 ├── docs/
 │   └── API.md
+├── data/                  # SQLite database (auto-created)
 └── .env.example
 ```
 
@@ -96,6 +100,7 @@ npm run test:ui
 - **Language:** TypeScript 5.3
 - **Framework:** Hono
 - **AI:** OpenAI GPT-4
+- **Database:** SQLite (better-sqlite3)
 - **Testing:** Vitest
 - **Linting:** ESLint
 
