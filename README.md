@@ -1,4 +1,4 @@
-# OmniPost
+# omnipost
 
 Multi-platform content generation and publishing tool. One prompt, optimized for multiple platforms.
 
@@ -17,7 +17,7 @@ Multi-platform content generation and publishing tool. One prompt, optimized for
 ## Project Structure
 
 ```
-OmniPost/
+omnipost/
 ├── README.md
 ├── package.json
 ├── tsconfig.json
@@ -56,7 +56,7 @@ OmniPost/
 
 ```bash
 # Clone or navigate to project
-cd OmniPost
+cd omnipost
 
 # Install dependencies
 npm install

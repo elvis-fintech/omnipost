@@ -1,4 +1,4 @@
-# OmniPost API
+# omnipost API
 
 ## Endpoints
 
