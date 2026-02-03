@@ -1,4 +1,4 @@
-# CrossReach
+# OmniPost
 
 Multi-platform content generation and publishing tool. One prompt, optimized for multiple platforms.
 
@@ -17,7 +17,7 @@ Multi-platform content generation and publishing tool. One prompt, optimized for
 ## Project Structure
 
 ```
-CrossReach/
+OmniPost/
 ├── README.md
 ├── package.json
 ├── tsconfig.json
@@ -56,7 +56,7 @@ CrossReach/
 
 ```bash
 # Clone or navigate to project
-cd CrossReach
+cd OmniPost
 
 # Install dependencies
 npm install

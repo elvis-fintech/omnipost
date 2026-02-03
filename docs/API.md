@@ -1,4 +1,4 @@
-# CrossReach API
+# OmniPost API
 
 ## Endpoints
 

@@ -1,7 +1,7 @@
 {
-  "name": "crossreach",
+  "name": "omnipost",
   "version": "1.0.0",
-  "description": "跨平台內容生成與發布工具",
+  "description": "Multi-platform content generation and publishing tool",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
