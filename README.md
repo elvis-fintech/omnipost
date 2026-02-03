@@ -104,6 +104,30 @@ npm run test:ui
 - **Testing:** Vitest
 - **Linting:** ESLint
 
+## Deployment
+
+### Local Development
+SQLite works out of the box for local development.
+
+### Vercel Deployment
+SQLite is file-based and not suitable for Vercel's serverless environment. For Vercel deployment:
+
+1. **Set up Supabase project** at https://supabase.com
+2. **Replace database layer** - Swap `src/db/index.ts` with Supabase client
+3. **Add environment variables** in Vercel:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+
+### Windows Notes
+```bash
+# Install with prebuilt binaries
+npm install --ignore-scripts
+
+# Or install build tools first
+npm install -g windows-build-tools
+npm install better-sqlite3
+```
+
 ## Contributing
 
 1. Fork the repository
