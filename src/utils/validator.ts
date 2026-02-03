@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const ContentInputSchema = z.object({
   originalContent: z.string().min(1).max(5000),
-  targetPlatform: z.enum(['threads', 'linkedin', 'instagram']),
+  targetPlatform: z.enum(['threads', 'linkedin', 'instagram']).optional(),
   tone: z.enum(['professional', 'casual', 'engaging']).optional(),
   hashtags: z.boolean().optional().default(true),
   mediaUrls: z.array(z.string().url()).optional()
