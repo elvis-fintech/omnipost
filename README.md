@@ -1,18 +1,18 @@
 # CrossReach
 
-跨平台內容生成與發布工具。一個 prompt，多平台適配發布。
+Multi-platform content generation and publishing tool. One prompt, optimized for multiple platforms.
 
 ![Node.js](https://img.shields.io/badge/Node.js-20+-green)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-## 核心功能
+## Core Features
 
-- **AI 內容生成** — 根據用戶輸入，生成符合各平台風格的內容
-- **平台適配** — Threads、LinkedIn、Instagram 各自優化
-- **排程發布** — 預設時間自動發布
-- **內容歷史** — 儲存生成記錄，保持風格一致性
-- **REST API** — 簡單易用
+- **AI Content Generation** - Generate platform-optimized content from user input
+- **Platform Adapters** - Optimized for Threads, LinkedIn, Instagram
+- **Scheduled Publishing** - Auto-publish at scheduled times
+- **Content History** - Store generation history for consistent tone
+- **REST API** - Simple and easy to use
 
 ## Project Structure
 
@@ -52,7 +52,7 @@ CrossReach/
 └── .env.example
 ```
 
-## 快速開始
+## Quick Start
 
 ```bash
 # Clone or navigate to project
@@ -72,11 +72,11 @@ cp .env.example .env
 npm run dev
 ```
 
-## API 文件
+## API Documentation
 
 See [docs/API.md](docs/API.md) for full API documentation.
 
-## 測試
+## Testing
 
 ```bash
 # Run all tests
@@ -86,13 +86,13 @@ npm test
 npm run test:ui
 ```
 
-## 支援平台
+## Supported Platforms
 
-| 平台 | 字數上限 | 風格 |
-|------|----------|------|
-| LinkedIn | 3000 | 專業、正經、產業洞察 |
-| Threads | 500 | 輕鬆、對話式、互動 |
-| Instagram | 2200 | 視覺導向、簡短吸引 |
+| Platform | Max Length | Style |
+|----------|------------|-------|
+| LinkedIn | 3000 | Professional, industry insights |
+| Threads | 500 | Casual, conversational |
+| Instagram | 2200 | Visual, concise |
 
 ## Tech Stack
 
