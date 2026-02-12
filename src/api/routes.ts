@@ -8,8 +8,12 @@ import { InstagramAdapter } from '../platforms/instagram.js';
 import { ContentInputSchema } from '../utils/validator.js';
 import { getRecentPosts } from '../db/index.js';
 import logger from '../utils/logger.js';
+import { renderDashboardPage } from '../ui/dashboard.js';
 
 const app = new Hono();
+
+// UI Dashboard
+app.get('/', (c) => c.html(renderDashboardPage()));
 
 // Generate content for a platform
 app.post('/generate', async (c) => {
@@ -25,6 +29,33 @@ app.post('/generate', async (c) => {
     return c.json({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Unknown error' 
+    }, 400);
+  }
+});
+
+// Generate content for all platforms in one request
+app.post('/generate/all', async (c) => {
+  try {
+    const body = await c.req.json<{ originalContent: string; tone?: string; hashtags?: boolean; mediaUrls?: string[] }>();
+    const validated = ContentInputSchema.omit({ targetPlatform: true }).parse(body);
+    const platforms = ['linkedin', 'threads', 'instagram'] as const;
+
+    const data = await Promise.all(
+      platforms.map(async (platform) => {
+        const content = await contentGenerator.generate({
+          ...validated,
+          targetPlatform: platform
+        });
+        return { platform, content };
+      })
+    );
+
+    return c.json({ success: true, data });
+  } catch (error) {
+    logger.error('Generate all API error', { error });
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
     }, 400);
   }
 });
