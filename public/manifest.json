@@ -1,0 +1,21 @@
+{
+    "name": "Omnipost",
+    "short_name": "Omnipost",
+    "description": "Multi-platform content generation and publishing tool",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#f1f5f9",
+    "theme_color": "#0f4c81",
+    "icons": [
+        {
+            "src": "/logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}

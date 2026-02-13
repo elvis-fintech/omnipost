@@ -4,7 +4,9 @@ export function renderDashboardPage(): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="/static/manifest.json">
   <title>Omnipost Console</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
 
@@ -77,8 +79,6 @@ export function renderDashboardPage(): string {
       border-radius: 12px;
       display: grid;
       place-items: center;
-      color: #fff;
-      background: linear-gradient(135deg, var(--primary), #1d4ed8);
     }
 
     .top-actions {
@@ -840,9 +840,7 @@ export function renderDashboardPage(): string {
     <div class="topbar-inner">
       <div class="brand">
         <span class="brand-badge">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" fill="currentColor" />
-          </svg>
+          <img src="/logo.svg" alt="Omnipost" width="40" height="40" />
         </span>
         Omnipost Console
       </div>
