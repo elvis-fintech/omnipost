@@ -14,7 +14,8 @@ Content-Type: application/json
   "originalContent": "Your content here",
   "targetPlatform": "linkedin",
   "tone": "professional",
-  "hashtags": true
+  "hashtags": true,
+  "outputLanguage": "en"
 }
 ```
 
@@ -44,7 +45,8 @@ Content-Type: application/json
 {
   "originalContent": "Your content here",
   "tone": "professional",
-  "hashtags": true
+  "hashtags": true,
+  "outputLanguage": "zh-Hant"
 }
 ```
 
@@ -124,7 +126,8 @@ Content-Type: application/json
 {
   "content": {
     "originalContent": "Your content",
-    "targetPlatform": "linkedin"
+    "targetPlatform": "linkedin",
+    "outputLanguage": "en"
   },
   "scheduledAt": "2024-01-15T10:00:00Z",
   "platforms": ["linkedin", "threads"]
@@ -175,6 +178,7 @@ GET /
 |----------|----------|-------------|
 | `OPENAI_API_KEY` | Yes | OpenAI API key |
 | `OPENAI_MODEL` | No | Model (default: gpt-4-turbo-preview) |
+| `OPENAI_API_BASE` | No | OpenAI compatible base URL (default: official OpenAI endpoint) |
 | `THREADS_ACCESS_TOKEN` | For posting | Threads access token |
 | `THREADS_USER_ID` | For posting | Threads user id |
 | `LINKEDIN_ACCESS_TOKEN` | For posting | LinkedIn access token |
