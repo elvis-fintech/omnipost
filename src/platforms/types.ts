@@ -6,6 +6,7 @@ export interface ContentInput {
   tone?: 'professional' | 'casual' | 'engaging';
   hashtags?: boolean;
   mediaUrls?: string[];
+  outputLanguage?: OutputLanguage;
 }
 
 export interface GeneratedContent {
@@ -22,6 +23,7 @@ export interface MediaContent {
 }
 
 export type PlatformType = 'threads' | 'linkedin' | 'instagram';
+export type OutputLanguage = 'zh-Hant' | 'en';
 
 export interface PlatformCredentials {
   accessToken: string;

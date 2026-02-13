@@ -2,13 +2,15 @@
 import { z } from 'zod';
 
 export const PlatformSchema = z.enum(['threads', 'linkedin', 'instagram']);
+export const OutputLanguageSchema = z.enum(['zh-Hant', 'en']);
 
 export const ContentInputSchema = z.object({
   originalContent: z.string().min(1).max(5000),
   targetPlatform: PlatformSchema,
   tone: z.enum(['professional', 'casual', 'engaging']).optional(),
   hashtags: z.boolean().optional().default(true),
-  mediaUrls: z.array(z.string().url()).optional()
+  mediaUrls: z.array(z.string().url()).optional(),
+  outputLanguage: OutputLanguageSchema.optional().default('zh-Hant')
 });
 
 export const BatchGenerateInputSchema = ContentInputSchema.omit({

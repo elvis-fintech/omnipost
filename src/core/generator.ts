@@ -1,6 +1,6 @@
 // AI 內容生成器
 import OpenAI from 'openai';
-import type { ContentInput, GeneratedContent } from '../platforms/types.js';
+import type { ContentInput, GeneratedContent, OutputLanguage } from '../platforms/types.js';
 import logger from '../utils/logger.js';
 import { config } from '../config/index.js';
 import { saveGeneratedPost, getRecentPosts } from '../db/index.js';
@@ -35,6 +35,11 @@ const PLATFORM_PROMPTS = {
 - 适合配合视觉内容`
 };
 
+const LANGUAGE_PROMPTS: Record<OutputLanguage, string> = {
+  'zh-Hant': '輸出語言：繁體中文。禁止使用簡體中文。',
+  en: 'Output language: English.'
+};
+
 export class ContentGenerator {
   async generate(input: ContentInput): Promise<GeneratedContent & { id: string }> {
     const platformPrompt = PLATFORM_PROMPTS[input.targetPlatform];
@@ -45,10 +50,12 @@ export class ContentGenerator {
       ? `\n\n注意：以下是最近生成的內容，請保持類似的風格：\n${recentPosts.map(p => `- "${p.generated_content}"`).join('\n')}`
       : '';
 
+    const outputLanguage = input.outputLanguage || 'zh-Hant';
     const systemPrompt = `${platformPrompt}${historyContext}
 
 當前風格要求: ${input.tone || 'default'}
-Hashtags: ${input.hashtags ? '需要' : '不需要'}`;
+Hashtags: ${input.hashtags ? '需要' : '不需要'}
+${LANGUAGE_PROMPTS[outputLanguage]}`;
 
     try {
       const response = await openai.chat.completions.create({

@@ -146,7 +146,7 @@ export function renderDashboardPage(): string {
       margin: 0 auto;
       padding: 20px 24px 24px;
       display: grid;
-      grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
+      grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
       gap: 20px;
       align-items: stretch;
     }
@@ -159,10 +159,9 @@ export function renderDashboardPage(): string {
     }
 
     .control {
-      position: sticky;
-      top: 86px;
-      overflow: auto;
-      max-height: calc(100vh - 104px);
+      position: static;
+      overflow: visible;
+      max-height: none;
     }
 
     .section {
@@ -208,7 +207,7 @@ export function renderDashboardPage(): string {
     }
 
     textarea {
-      min-height: 210px;
+      min-height: 180px;
       resize: vertical;
       line-height: 1.55;
     }
@@ -223,7 +222,7 @@ export function renderDashboardPage(): string {
     .primary-actions {
       margin-top: 14px;
       display: grid;
-      grid-template-columns: 1fr 130px;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
 
@@ -752,7 +751,7 @@ export function renderDashboardPage(): string {
 
     @media (max-width: 1520px) {
       .layout {
-        grid-template-columns: minmax(290px, 330px) minmax(0, 1fr);
+        grid-template-columns: minmax(340px, 390px) minmax(0, 1fr);
         gap: 16px;
         padding: 16px 18px 20px;
       }
@@ -888,9 +887,18 @@ export function renderDashboardPage(): string {
                   </select>
                 </div>
                 <div>
-                  <label class="label" for="at" data-i18n="lblAt">排程時間</label>
-                  <input id="at" type="datetime-local" />
+                  <label class="label" for="outputLanguage" data-i18n="lblOutputLang">輸出語言</label>
+                  <select id="outputLanguage">
+                    <option value="zh-Hant" data-i18n="outputLangZh">繁體中文</option>
+                    <option value="en" data-i18n="outputLangEn">English</option>
+                  </select>
                 </div>
+              </div>
+              <p class="hint" data-i18n="outputLangHint">內容輸出語言可獨立於界面語言。</p>
+
+              <div>
+                <label class="label" for="at" data-i18n="lblAt">排程時間</label>
+                <input id="at" type="datetime-local" />
               </div>
 
               <div class="check-row">
@@ -1023,6 +1031,10 @@ export function renderDashboardPage(): string {
         tonePro: '專業',
         toneCas: '輕鬆',
         toneEng: '互動',
+        lblOutputLang: '輸出語言',
+        outputLangZh: '繁體中文',
+        outputLangEn: '英文',
+        outputLangHint: '內容輸出語言可獨立於界面語言。',
         lblAt: '排程時間',
         lblTag: '啟用 Hashtags',
         platformHint: '可取消不需要的平台',
@@ -1096,6 +1108,10 @@ export function renderDashboardPage(): string {
         tonePro: 'Professional',
         toneCas: 'Casual',
         toneEng: 'Engaging',
+        lblOutputLang: 'Output language',
+        outputLangZh: 'Traditional Chinese',
+        outputLangEn: 'English',
+        outputLangHint: 'Output language is independent from UI language.',
         lblAt: 'Scheduled time',
         lblTag: 'Enable hashtags',
         platformHint: 'Uncheck any platform you do not need',
@@ -1165,6 +1181,7 @@ export function renderDashboardPage(): string {
     if (!i18n[lang]) {
       lang = 'zh-HK';
     }
+    const OUTPUT_LANGUAGE_STORAGE_KEY = 'omnipost_output_lang';
 
     const outputs = { linkedin: '', threads: '', instagram: '' };
     let activePlatform = 'linkedin';
@@ -1176,6 +1193,7 @@ export function renderDashboardPage(): string {
 
     const txt = $('#txt');
     const tone = $('#tone');
+    const outputLanguage = $('#outputLanguage');
     const tags = $('#tags');
     const at = $('#at');
     const st = $('#st');
@@ -1203,6 +1221,22 @@ export function renderDashboardPage(): string {
     function setStatus(message, type) {
       st.textContent = message;
       st.className = type ? 'status ' + type : 'status';
+    }
+
+    function getOutputLanguage() {
+      return outputLanguage && outputLanguage.value === 'en' ? 'en' : 'zh-Hant';
+    }
+
+    function syncOutputLanguageWithUiLanguage() {
+      if (!outputLanguage) {
+        return;
+      }
+      const savedOutputLanguage = localStorage.getItem(OUTPUT_LANGUAGE_STORAGE_KEY);
+      if (savedOutputLanguage === 'zh-Hant' || savedOutputLanguage === 'en') {
+        outputLanguage.value = savedOutputLanguage;
+        return;
+      }
+      outputLanguage.value = lang === 'en' ? 'en' : 'zh-Hant';
     }
 
     function esc(value) {
@@ -1352,6 +1386,7 @@ export function renderDashboardPage(): string {
           element.setAttribute('placeholder', t(key));
         }
       });
+      syncOutputLanguageWithUiLanguage();
       apiText.textContent = t('apiChk');
       refreshFocus();
       refreshTabCounters();
@@ -1435,7 +1470,8 @@ export function renderDashboardPage(): string {
           body: JSON.stringify({
             originalContent,
             tone: tone.value,
-            hashtags: tags.checked
+            hashtags: tags.checked,
+            outputLanguage: getOutputLanguage()
           })
         });
         const payload = await response.json();
@@ -1495,6 +1531,7 @@ export function renderDashboardPage(): string {
               originalContent,
               tone: tone.value,
               hashtags: tags.checked,
+              outputLanguage: getOutputLanguage(),
               targetPlatform: platforms[0] || 'linkedin'
             },
             scheduledAt: new Date(scheduledAt).toISOString(),
@@ -1629,6 +1666,12 @@ export function renderDashboardPage(): string {
         await Promise.all([healthCheck(), loadHistory(), loadJobs()]);
       });
     });
+
+    if (outputLanguage) {
+      outputLanguage.addEventListener('change', () => {
+        localStorage.setItem(OUTPUT_LANGUAGE_STORAGE_KEY, getOutputLanguage());
+      });
+    }
 
     renderLanguage();
     clearOutputs();

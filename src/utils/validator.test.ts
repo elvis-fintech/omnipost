@@ -48,11 +48,23 @@ describe('ContentInputSchema', () => {
     const inputWithMedia = {
       originalContent: 'Test with image',
       targetPlatform: 'instagram',
-      mediaUrls: ['https://example.com/image.jpg']
+      mediaUrls: ['https://example.com/image.jpg'],
+      outputLanguage: 'en'
     };
 
     const result = ContentInputSchema.safeParse(inputWithMedia);
     expect(result.success).toBe(true);
+  });
+
+  it('should reject invalid output language', () => {
+    const invalidInput = {
+      originalContent: 'Test',
+      targetPlatform: 'linkedin',
+      outputLanguage: 'zh-CN'
+    };
+
+    const result = ContentInputSchema.safeParse(invalidInput);
+    expect(result.success).toBe(false);
   });
 
   it('should reject invalid URL', () => {
