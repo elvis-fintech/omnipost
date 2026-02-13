@@ -1,9 +1,16 @@
 // Scheduler Tests
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Scheduler } from './scheduler';
+import type { ContentInput } from '../platforms/types';
 
 describe('Scheduler', () => {
   let scheduler: Scheduler;
+  const createInput = (targetPlatform: ContentInput['targetPlatform']): ContentInput => ({
+    originalContent: 'test',
+    targetPlatform,
+    tone: 'casual',
+    hashtags: true
+  });
 
   beforeEach(() => {
     scheduler = new Scheduler();
@@ -13,7 +20,7 @@ describe('Scheduler', () => {
     it('should schedule a post for the future', () => {
       const futureDate = new Date(Date.now() + 60000); // 1 minute from now
       const postId = scheduler.schedulePost(
-        { content: 'test' },
+        createInput('threads'),
         futureDate,
         ['threads']
       );
@@ -25,7 +32,7 @@ describe('Scheduler', () => {
     it('should add post to scheduled list', () => {
       const futureDate = new Date(Date.now() + 60000);
       const postId = scheduler.schedulePost(
-        { content: 'test' },
+        createInput('linkedin'),
         futureDate,
         ['linkedin']
       );
@@ -50,7 +57,7 @@ describe('Scheduler', () => {
     it('should cancel a scheduled post', () => {
       const futureDate = new Date(Date.now() + 60000);
       const postId = scheduler.schedulePost(
-        { content: 'test' },
+        createInput('instagram'),
         futureDate,
         ['instagram']
       );

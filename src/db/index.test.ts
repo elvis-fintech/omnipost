@@ -1,6 +1,6 @@
 // Database tests
 import { describe, it, expect, beforeEach } from 'vitest';
-import { saveGeneratedPost, getRecentPosts, savePostHistory, cleanupTestData, db } from './index';
+import { saveGeneratedPost, getRecentPosts, savePostHistory, cleanupTestData } from './index';
 
 describe('Database', () => {
   beforeEach(() => {

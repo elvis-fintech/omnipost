@@ -1,6 +1,6 @@
 // Validator Tests
 import { describe, it, expect } from 'vitest';
-import { ContentInputSchema, ConfigSchema } from './validator';
+import { ContentInputSchema } from './validator';
 
 describe('ContentInputSchema', () => {
   it('should validate valid input', () => {
@@ -35,18 +35,19 @@ describe('ContentInputSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('should allow optional fields', () => {
+  it('should reject missing target platform', () => {
     const minimalInput = {
       originalContent: 'Test'
     };
 
     const result = ContentInputSchema.safeParse(minimalInput);
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   it('should validate media URLs', () => {
     const inputWithMedia = {
       originalContent: 'Test with image',
+      targetPlatform: 'instagram',
       mediaUrls: ['https://example.com/image.jpg']
     };
 
@@ -57,6 +58,7 @@ describe('ContentInputSchema', () => {
   it('should reject invalid URL', () => {
     const inputWithInvalidUrl = {
       originalContent: 'Test',
+      targetPlatform: 'instagram',
       mediaUrls: ['not-a-url']
     };
 

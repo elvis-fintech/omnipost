@@ -1,6 +1,5 @@
 // ContentGenerator Tests
 import { describe, it, expect } from 'vitest';
-import { ContentGenerator } from './generator';
 
 describe('ContentGenerator', () => {
   describe('generate', () => {
