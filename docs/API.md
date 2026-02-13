@@ -33,6 +33,23 @@ Content-Type: application/json
 
 ---
 
+### Generate All Platforms
+
+一次生成 LinkedIn、Threads、Instagram 三個平台內容。
+
+```bash
+POST /generate/all
+Content-Type: application/json
+
+{
+  "originalContent": "Your content here",
+  "tone": "professional",
+  "hashtags": true
+}
+```
+
+---
+
 ### Get History
 
 Get generated posts history.
@@ -142,12 +159,28 @@ GET /health
 
 ---
 
+### Dashboard UI
+
+```bash
+GET /
+```
+
+回傳內建管理介面（HTML），可直接操作一鍵三平台生成、排程與歷史檢視。
+
+---
+
 ## Environment Variables
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `OPENAI_API_KEY` | Yes | OpenAI API key |
 | `OPENAI_MODEL` | No | Model (default: gpt-4-turbo-preview) |
+| `THREADS_ACCESS_TOKEN` | For posting | Threads access token |
+| `THREADS_USER_ID` | For posting | Threads user id |
+| `LINKEDIN_ACCESS_TOKEN` | For posting | LinkedIn access token |
+| `LINKEDIN_USER_ID` | For posting | LinkedIn member id |
+| `IG_ACCESS_TOKEN` | For posting | Instagram access token |
+| `IG_USER_ID` | For posting | Instagram user id |
 | `PORT` | No | Server port (default: 3000) |
 | `LOG_LEVEL` | No | Log level (default: info) |
 

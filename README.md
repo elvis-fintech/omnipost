@@ -45,7 +45,6 @@ omnipost/
 │       ├── logger.ts       # Winston logger
 │       └── validator.ts    # Zod schemas
 ├── tests/
-│   └── README.md
 ├── docs/
 │   └── API.md
 ├── data/                  # SQLite database (auto-created)
@@ -75,6 +74,11 @@ npm run dev
 ## API Documentation
 
 See [docs/API.md](docs/API.md) for full API documentation.
+
+Quick entry points:
+- `GET /` - Dashboard UI
+- `POST /generate` - Generate one platform
+- `POST /generate/all` - Generate all platforms in one call
 
 ## Testing
 
