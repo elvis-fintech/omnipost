@@ -1,20 +1,21 @@
 // 排程系統
 import { contentGenerator } from './generator.js';
+import { createPlatformAdapter } from './platform-factory.js';
 import logger from '../utils/logger.js';
-import type { ContentInput } from '../utils/validator.js';
+import type { ContentInput, PlatformType } from '../platforms/types.js';
 
 interface ScheduledPost {
   id: string;
   input: ContentInput;
   scheduledAt: Date;
-  platforms: string[];
+  platforms: PlatformType[];
   status: 'pending' | 'published' | 'failed';
 }
 
 export class Scheduler {
   private jobs: Map<string, ScheduledPost> = new Map();
 
-  schedulePost(input: ContentInput, scheduledAt: Date, platforms: string[]): string {
+  schedulePost(input: ContentInput, scheduledAt: Date, platforms: PlatformType[]): string {
     const id = `post_${Date.now()}`;
     
     const post: ScheduledPost = {
@@ -48,10 +49,17 @@ export class Scheduler {
       post.status = 'published';
       
       for (const platform of post.platforms) {
-        await contentGenerator.generate({
+        // 先生成內容，再立即呼叫平台 API 發佈
+        const generatedContent = await contentGenerator.generate({
           ...post.input,
-          targetPlatform: platform as 'threads' | 'linkedin' | 'instagram'
+          targetPlatform: platform
         });
+
+        const adapter = createPlatformAdapter(platform);
+        const result = await adapter.executePost(generatedContent);
+        if (!result.success) {
+          throw new Error(result.error || `Post failed on ${platform}`);
+        }
         
         logger.info(`Executed scheduled post for ${platform}`, { postId: id });
       }

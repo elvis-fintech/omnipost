@@ -177,5 +177,3 @@ export function cleanupTestData(): void {
   db.prepare('DELETE FROM post_history').run();
   db.prepare('DELETE FROM generated_posts').run();
 }
-
-export default db;

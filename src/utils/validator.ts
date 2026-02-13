@@ -1,12 +1,24 @@
 // Zod 驗證 schema
 import { z } from 'zod';
 
+export const PlatformSchema = z.enum(['threads', 'linkedin', 'instagram']);
+
 export const ContentInputSchema = z.object({
   originalContent: z.string().min(1).max(5000),
-  targetPlatform: z.enum(['threads', 'linkedin', 'instagram']).optional(),
+  targetPlatform: PlatformSchema,
   tone: z.enum(['professional', 'casual', 'engaging']).optional(),
   hashtags: z.boolean().optional().default(true),
   mediaUrls: z.array(z.string().url()).optional()
+});
+
+export const BatchGenerateInputSchema = ContentInputSchema.omit({
+  targetPlatform: true
+});
+
+export const ScheduleRequestSchema = z.object({
+  content: ContentInputSchema,
+  scheduledAt: z.string().datetime(),
+  platforms: z.array(PlatformSchema).min(1)
 });
 
 export const ConfigSchema = z.object({

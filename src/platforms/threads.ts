@@ -3,7 +3,6 @@ import axios from 'axios';
 import { PlatformAdapter } from '../core/adapter.js';
 import type { GeneratedContent, PostResult } from '../platforms/types.js';
 import logger from '../utils/logger.js';
-import { config } from '../config/index.js';
 
 export class ThreadsAdapter extends PlatformAdapter {
   platform = 'threads' as const;

@@ -2,10 +2,9 @@
 import { Hono } from 'hono';
 import { contentGenerator } from '../core/generator.js';
 import { scheduler } from '../core/scheduler.js';
-import { ThreadsAdapter } from '../platforms/threads.js';
-import { LinkedInAdapter } from '../platforms/linkedin.js';
-import { InstagramAdapter } from '../platforms/instagram.js';
-import { ContentInputSchema } from '../utils/validator.js';
+import { createPlatformAdapter } from '../core/platform-factory.js';
+import type { GeneratedContent } from '../platforms/types.js';
+import { BatchGenerateInputSchema, ContentInputSchema, PlatformSchema, ScheduleRequestSchema } from '../utils/validator.js';
 import { getRecentPosts } from '../db/index.js';
 import logger from '../utils/logger.js';
 import { renderDashboardPage } from '../ui/dashboard.js';
@@ -18,7 +17,7 @@ app.get('/', (c) => c.html(renderDashboardPage()));
 // Generate content for a platform
 app.post('/generate', async (c) => {
   try {
-    const body = await c.req.json<{ originalContent: string; targetPlatform: string; tone?: string; hashtags?: boolean }>();
+    const body: unknown = await c.req.json();
     const validated = ContentInputSchema.parse(body);
 
     const content = await contentGenerator.generate(validated);
@@ -36,8 +35,8 @@ app.post('/generate', async (c) => {
 // Generate content for all platforms in one request
 app.post('/generate/all', async (c) => {
   try {
-    const body = await c.req.json<{ originalContent: string; tone?: string; hashtags?: boolean; mediaUrls?: string[] }>();
-    const validated = ContentInputSchema.omit({ targetPlatform: true }).parse(body);
+    const body: unknown = await c.req.json();
+    const validated = BatchGenerateInputSchema.parse(body);
     const platforms = ['linkedin', 'threads', 'instagram'] as const;
 
     const data = await Promise.all(
@@ -61,7 +60,7 @@ app.post('/generate/all', async (c) => {
 });
 
 // Get generated posts history
-app.get('/history', async (c) => {
+app.get('/history', (c) => {
   const platform = c.req.query('platform');
   const limit = parseInt(c.req.query('limit') || '10', 10);
   
@@ -78,7 +77,7 @@ app.get('/history', async (c) => {
 });
 
 // Get history by platform
-app.get('/history/:platform', async (c) => {
+app.get('/history/:platform', (c) => {
   const platform = c.req.param('platform');
   const limit = parseInt(c.req.query('limit') || '10', 10);
   
@@ -96,18 +95,31 @@ app.get('/history/:platform', async (c) => {
 
 // Post to a single platform
 app.post('/post/:platform', async (c) => {
-  const platform = c.req.param('platform') as 'threads' | 'linkedin' | 'instagram';
-  const body = await c.req.json<{ content: { text: string } }>();
+  const platformResult = PlatformSchema.safeParse(c.req.param('platform'));
+
+  if (!platformResult.success) {
+    return c.json({
+      success: false,
+      error: 'Unsupported platform'
+    }, 400);
+  }
+
+  const platform = platformResult.data;
 
   try {
-    const adapters = {
-      threads: new ThreadsAdapter({ accessToken: '', userId: '' }),
-      linkedin: new LinkedInAdapter({ accessToken: '', userId: '' }),
-      instagram: new InstagramAdapter({ accessToken: '', userId: '' })
-    };
+    const body = await c.req.json<{ content?: { text?: string; mediaUrls?: string[] } }>();
+    const text = body.content?.text?.trim();
+    if (!text) {
+      return c.json({ success: false, error: 'content.text is required' }, 400);
+    }
 
-    const adapter = adapters[platform];
-    const result = await adapter.executePost(body.content);
+    const adapter = createPlatformAdapter(platform);
+    const content: GeneratedContent = {
+      platform,
+      text,
+      media: body.content?.mediaUrls?.map((url) => ({ type: 'image', url }))
+    };
+    const result = await adapter.executePost(content);
 
     return c.json({ success: true, data: result });
   } catch (error) {
@@ -122,8 +134,8 @@ app.post('/post/:platform', async (c) => {
 // Schedule a post
 app.post('/schedule', async (c) => {
   try {
-    const body = await c.req.json<{ content: { originalContent: string; targetPlatform: string; tone?: string; hashtags?: boolean }; scheduledAt: string; platforms: string[] }>();
-    const { content, scheduledAt, platforms } = body;
+    const body: unknown = await c.req.json();
+    const { content, scheduledAt, platforms } = ScheduleRequestSchema.parse(body);
 
     const postId = scheduler.schedulePost(
       content,
@@ -142,13 +154,13 @@ app.post('/schedule', async (c) => {
 });
 
 // Get scheduled posts
-app.get('/scheduled', async (c) => {
+app.get('/scheduled', (c) => {
   const posts = scheduler.getScheduledPosts();
   return c.json({ success: true, data: posts });
 });
 
 // Health check
-app.get('/health', async (c) => {
+app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 

@@ -6,5 +6,19 @@ export const config = {
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   openaiModel: process.env.OPENAI_MODEL || 'gpt-4-turbo-preview',
   port: parseInt(process.env.PORT || '3000', 10),
-  logLevel: process.env.LOG_LEVEL || 'info'
+  logLevel: process.env.LOG_LEVEL || 'info',
+  platformCredentials: {
+    threads: {
+      accessToken: process.env.THREADS_ACCESS_TOKEN || '',
+      userId: process.env.THREADS_USER_ID || ''
+    },
+    linkedin: {
+      accessToken: process.env.LINKEDIN_ACCESS_TOKEN || '',
+      userId: process.env.LINKEDIN_USER_ID || ''
+    },
+    instagram: {
+      accessToken: process.env.IG_ACCESS_TOKEN || '',
+      userId: process.env.IG_USER_ID || ''
+    }
+  }
 };

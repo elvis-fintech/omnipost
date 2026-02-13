@@ -20,7 +20,7 @@ export abstract class PlatformAdapter {
   abstract post(content: GeneratedContent): Promise<PostResult>;
   abstract validate(content: string): boolean;
 
-  protected async executePost(content: GeneratedContent): Promise<PostResult> {
+  async executePost(content: GeneratedContent): Promise<PostResult> {
     try {
       if (!this.validate(content.text)) {
         return {
