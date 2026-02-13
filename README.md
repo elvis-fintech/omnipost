@@ -1,145 +1,173 @@
-# omnipost
+# Omnipost
 
-Multi-platform content generation and publishing tool. One prompt, optimized for multiple platforms.
+Omnipost is a multi-platform content generation and publishing tool.
+Write once, then generate platform-optimized drafts for LinkedIn, Threads, and Instagram.
 
 ![Node.js](https://img.shields.io/badge/Node.js-20+-green)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-## Core Features
+## Features
 
-- **AI Content Generation** - Generate platform-optimized content from user input
-- **Platform Adapters** - Optimized for Threads, LinkedIn, Instagram
-- **Scheduled Publishing** - Auto-publish at scheduled times
-- **Content History** - Store generation history for consistent tone
-- **REST API** - Simple and easy to use
+- One-click AI generation for 3 platforms
+- Platform-aware tone and length constraints
+- UI language and output language can be configured independently
+- Built-in Dashboard for generate, review, copy, and schedule
+- REST API for external integrations
 
-## Project Structure
+## Quick Start (3 Minutes)
 
-```
-omnipost/
-├── README.md
-├── package.json
-├── tsconfig.json
-├── .eslintrc.json
-├── .gitignore
-├── .env.example
-├── src/
-│   ├── index.ts           # Entry point
-│   ├── config/
-│   │   └── index.ts       # Config management
-│   ├── api/
-│   │   └── routes.ts      # REST API
-│   ├── core/
-│   │   ├── generator.ts   # AI content generation
-│   │   ├── adapter.ts     # Platform adapter base
-│   │   └── scheduler.ts   # Post scheduling
-│   ├── db/
-│   │   └── index.ts       # SQLite database
-│   ├── platforms/
-│   │   ├── types.ts       # Shared types
-│   │   ├── threads.ts     # Threads adapter
-│   │   ├── linkedin.ts    # LinkedIn adapter
-│   │   └── instagram.ts   # Instagram adapter
-│   └── utils/
-│       ├── logger.ts       # Winston logger
-│       └── validator.ts    # Zod schemas
-├── tests/
-├── docs/
-│   └── API.md
-├── data/                  # SQLite database (auto-created)
-└── .env.example
-```
-
-## Quick Start
+### 1) Install dependencies
 
 ```bash
-# Clone or navigate to project
-cd omnipost
-
-# Install dependencies
 npm install
+```
 
-# Copy environment file
+### 2) Create your environment file
+
+PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+macOS / Linux:
+
+```bash
 cp .env.example .env
+```
 
-# Edit .env with your API keys
-# - OPENAI_API_KEY (required)
-# - Platform tokens (Threads/LinkedIn/IG)
+### 3) Fill minimum OpenAI settings
 
-# Run development server
+```env
+OPENAI_API_KEY=your_api_key
+OPENAI_API_BASE=
+OPENAI_MODEL=gpt-4-turbo-preview
+```
+
+- Leave `OPENAI_API_BASE` empty to use the official OpenAI endpoint.
+- If you use an OpenAI-compatible provider, set `OPENAI_API_BASE` to their base URL (for example `https://example.com/v1`).
+
+### 4) Start the app
+
+```bash
 npm run dev
 ```
 
-## API Documentation
+Open:
 
-See [docs/API.md](docs/API.md) for full API documentation.
+- Dashboard: `http://localhost:3000/`
+- Health: `http://localhost:3000/health`
 
-Quick entry points:
-- `GET /` - Dashboard UI
-- `POST /generate` - Generate one platform
-- `POST /generate/all` - Generate all platforms in one call
+## Dashboard Flow
 
-## Testing
+1. Paste your original content in the left panel.
+2. In Advanced Settings, choose tone and output language (Traditional Chinese or English).
+3. Click **Generate 3 platforms**.
+4. Review all generated drafts in the workspace.
+5. Copy current/all outputs, or schedule posting.
+
+## API Quick Examples
+
+### Generate all platforms
 
 ```bash
-# Run all tests
-npm test
-
-# Run with UI
-npm run test:ui
+curl -X POST http://localhost:3000/generate/all \
+  -H "Content-Type: application/json" \
+  -d '{
+    "originalContent": "We just shipped a new analytics feature for PM teams.",
+    "tone": "professional",
+    "hashtags": true,
+    "outputLanguage": "en"
+  }'
 ```
 
-## Supported Platforms
+### Generate single platform
 
-| Platform | Max Length | Style |
-|----------|------------|-------|
-| LinkedIn | 3000 | Professional, industry insights |
-| Threads | 500 | Casual, conversational |
-| Instagram | 2200 | Visual, concise |
-
-## Tech Stack
-
-- **Runtime:** Node.js 20+
-- **Language:** TypeScript 5.3
-- **Framework:** Hono
-- **AI:** OpenAI GPT-4
-- **Database:** SQLite (better-sqlite3)
-- **Testing:** Vitest
-- **Linting:** ESLint
-
-## Deployment
-
-### Local Development
-SQLite works out of the box for local development.
-
-### Vercel Deployment
-SQLite is file-based and not suitable for Vercel's serverless environment. For Vercel deployment:
-
-1. **Set up Supabase project** at https://supabase.com
-2. **Replace database layer** - Swap `src/db/index.ts` with Supabase client
-3. **Add environment variables** in Vercel:
-   - `SUPABASE_URL`
-   - `SUPABASE_ANON_KEY`
-
-### Windows Notes
 ```bash
-# Install with prebuilt binaries
-npm install --ignore-scripts
-
-# Or install build tools first
-npm install -g windows-build-tools
-npm install better-sqlite3
+curl -X POST http://localhost:3000/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "originalContent": "We just shipped a new analytics feature.",
+    "targetPlatform": "linkedin",
+    "tone": "professional",
+    "outputLanguage": "en"
+  }'
 ```
 
-## Contributing
+See full API details in `docs/API.md`.
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## Environment Variables
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `OPENAI_API_KEY` | Yes | API key for content generation |
+| `OPENAI_API_BASE` | No | OpenAI-compatible base URL |
+| `OPENAI_MODEL` | No | Model name |
+| `PORT` | No | Server port (default `3000`) |
+| `LOG_LEVEL` | No | Log level (default `info`) |
+| `THREADS_ACCESS_TOKEN` | Required for posting | Threads posting token |
+| `THREADS_USER_ID` | Required for posting | Threads user ID |
+| `LINKEDIN_ACCESS_TOKEN` | Required for posting | LinkedIn posting token |
+| `LINKEDIN_USER_ID` | Required for posting | LinkedIn member ID |
+| `IG_ACCESS_TOKEN` | Required for posting | Instagram posting token |
+| `IG_USER_ID` | Required for posting | Instagram user ID |
+
+> If you only generate content (no real posting/scheduling), OpenAI settings are enough.
+
+## Development Commands
+
+```bash
+npm run dev       # Start dev server (tsx watch)
+npm run build     # Compile TypeScript to dist/
+npm run start     # Run compiled app
+npm run lint      # Run ESLint
+npm test          # Run Vitest (watch mode)
+npx vitest run    # Run tests once
+npm run test:ui   # Run Vitest UI
+```
+
+## Troubleshooting
+
+### `EADDRINUSE: address already in use :::3000`
+
+Port 3000 is already occupied.
+
+- Close the previous `npm run dev` process, or
+- Change `PORT` in `.env` (for example `3001`) and restart.
+
+### 4xx / 403 on generation
+
+Check in this order:
+
+1. Restart server after editing `.env`
+2. Verify `OPENAI_API_KEY`
+3. Verify `OPENAI_API_BASE` (leave empty if unsure)
+4. Verify `OPENAI_MODEL` is supported by your provider
+
+### Scheduling/posting fails
+
+Make sure platform access tokens and user IDs are present and not expired.
+
+## Project Structure
+
+```text
+src/
+├── index.ts             # Server entry
+├── api/routes.ts        # API + dashboard routes
+├── core/                # generator, scheduler, platform factory
+├── db/index.ts          # SQLite operations
+├── platforms/           # platform adapters + shared types
+├── ui/dashboard.ts      # dashboard HTML + frontend logic
+└── utils/               # logger + validator
+```
+
+## Security Notes
+
+- Never commit `.env`
+- Rotate API keys and platform tokens periodically
+- For serverless deployments, use external DB instead of local SQLite
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT (see `LICENSE`)
