@@ -4,6 +4,7 @@ dotenv.config();
 
 export const config = {
   openaiApiKey: process.env.OPENAI_API_KEY || '',
+  openaiApiBase: process.env.OPENAI_API_BASE || undefined,
   openaiModel: process.env.OPENAI_MODEL || 'gpt-4-turbo-preview',
   port: parseInt(process.env.PORT || '3000', 10),
   logLevel: process.env.LOG_LEVEL || 'info',

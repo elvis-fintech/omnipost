@@ -7,7 +7,8 @@ import { saveGeneratedPost, getRecentPosts } from '../db/index.js';
 import { randomUUID } from 'crypto';
 
 const openai = new OpenAI({
-  apiKey: config.openaiApiKey
+  apiKey: config.openaiApiKey,
+  baseURL: config.openaiApiBase
 });
 
 const PLATFORM_PROMPTS = {
