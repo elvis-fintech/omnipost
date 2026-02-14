@@ -43,9 +43,21 @@ void db.exec(`
     FOREIGN KEY (generated_post_id) REFERENCES generated_posts(id)
   );
 
+  CREATE TABLE IF NOT EXISTS scheduled_jobs (
+    id TEXT PRIMARY KEY,
+    input_json TEXT NOT NULL,
+    platforms_json TEXT NOT NULL,
+    scheduled_at TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    error TEXT,
+    published_at TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+
   CREATE INDEX IF NOT EXISTS idx_posts_platform ON generated_posts(platform);
   CREATE INDEX IF NOT EXISTS idx_posts_created ON generated_posts(created_at);
   CREATE INDEX IF NOT EXISTS idx_history_status ON post_history(status);
+  CREATE INDEX IF NOT EXISTS idx_scheduled_jobs_status_time ON scheduled_jobs(status, scheduled_at);
 `);
 
 export interface GeneratedPost {
@@ -69,6 +81,26 @@ export interface PostHistory {
   published_at?: string;
   error?: string;
   created_at?: string;
+}
+
+export type ScheduledJobStatus = 'pending' | 'processing' | 'published' | 'failed' | 'cancelled';
+
+export interface ScheduledJobRecord {
+  id: string;
+  input_json: string;
+  platforms_json: string;
+  scheduled_at: string;
+  status: ScheduledJobStatus;
+  error?: string;
+  published_at?: string;
+  created_at?: string;
+}
+
+export interface NewScheduledJob {
+  id: string;
+  inputJson: string;
+  platformsJson: string;
+  scheduledAt: string;
 }
 
 // Save generated post
@@ -172,8 +204,79 @@ export function getScheduledPosts(): PostHistory[] {
   return stmt.all() as PostHistory[];
 }
 
+export function saveScheduledJob(job: NewScheduledJob): string {
+  const stmt = db.prepare(`
+    INSERT INTO scheduled_jobs (id, input_json, platforms_json, scheduled_at, status)
+    VALUES (?, ?, ?, ?, 'pending')
+  `);
+
+  stmt.run(job.id, job.inputJson, job.platformsJson, job.scheduledAt);
+  return job.id;
+}
+
+export function getDueScheduledJobs(nowIso: string): ScheduledJobRecord[] {
+  const stmt = db.prepare(`
+    SELECT * FROM scheduled_jobs
+    WHERE status = 'pending'
+    AND scheduled_at <= ?
+    ORDER BY scheduled_at ASC
+  `);
+  return stmt.all(nowIso) as ScheduledJobRecord[];
+}
+
+export function getAllScheduledJobs(limit: number = 100): ScheduledJobRecord[] {
+  const stmt = db.prepare(`
+    SELECT * FROM scheduled_jobs
+    ORDER BY datetime(created_at) DESC
+    LIMIT ?
+  `);
+  return stmt.all(limit) as ScheduledJobRecord[];
+}
+
+export function claimScheduledJob(id: string): boolean {
+  // 只允許 pending 被領取，避免重複執行
+  const stmt = db.prepare(`
+    UPDATE scheduled_jobs
+    SET status = 'processing', error = NULL
+    WHERE id = ?
+    AND status = 'pending'
+  `);
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
+export function markScheduledJobPublished(id: string): void {
+  const stmt = db.prepare(`
+    UPDATE scheduled_jobs
+    SET status = 'published', error = NULL, published_at = ?
+    WHERE id = ?
+  `);
+  stmt.run(new Date().toISOString(), id);
+}
+
+export function markScheduledJobFailed(id: string, error: string): void {
+  const stmt = db.prepare(`
+    UPDATE scheduled_jobs
+    SET status = 'failed', error = ?
+    WHERE id = ?
+  `);
+  stmt.run(error, id);
+}
+
+export function cancelScheduledJob(id: string): boolean {
+  const stmt = db.prepare(`
+    UPDATE scheduled_jobs
+    SET status = 'cancelled'
+    WHERE id = ?
+    AND status = 'pending'
+  `);
+  const result = stmt.run(id);
+  return result.changes > 0;
+}
+
 // Clean up test data
 export function cleanupTestData(): void {
+  db.prepare('DELETE FROM scheduled_jobs').run();
   db.prepare('DELETE FROM post_history').run();
   db.prepare('DELETE FROM generated_posts').run();
 }

@@ -1,7 +1,8 @@
 // Scheduler Tests
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Scheduler } from './scheduler';
 import type { ContentInput } from '../platforms/types';
+import { cleanupTestData } from '../db/index';
 
 describe('Scheduler', () => {
   let scheduler: Scheduler;
@@ -13,7 +14,13 @@ describe('Scheduler', () => {
   });
 
   beforeEach(() => {
+    cleanupTestData();
     scheduler = new Scheduler();
+  });
+
+  afterEach(() => {
+    scheduler.stop();
+    cleanupTestData();
   });
 
   describe('schedulePost', () => {
@@ -67,7 +74,8 @@ describe('Scheduler', () => {
 
       const posts = scheduler.getScheduledPosts();
       const found = posts.find(p => p.id === postId);
-      expect(found).toBeUndefined();
+      expect(found).toBeDefined();
+      expect(found?.status).toBe('cancelled');
     });
 
     it('should return false for non-existent post', () => {

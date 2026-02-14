@@ -1,6 +1,18 @@
 // Database tests
 import { describe, it, expect, beforeEach } from 'vitest';
-import { saveGeneratedPost, getRecentPosts, savePostHistory, cleanupTestData } from './index';
+import {
+  cancelScheduledJob,
+  claimScheduledJob,
+  cleanupTestData,
+  getAllScheduledJobs,
+  getDueScheduledJobs,
+  getRecentPosts,
+  markScheduledJobFailed,
+  markScheduledJobPublished,
+  saveGeneratedPost,
+  savePostHistory,
+  saveScheduledJob
+} from './index';
 
 describe('Database', () => {
   beforeEach(() => {
@@ -110,6 +122,91 @@ describe('Database', () => {
 
       const result = savePostHistory(history);
       expect(result).toBe('history_1');
+    });
+  });
+
+  describe('scheduled jobs', () => {
+    it('should save and list scheduled jobs', () => {
+      const scheduledAt = new Date(Date.now() + 60_000).toISOString();
+      saveScheduledJob({
+        id: 'job_1',
+        inputJson: JSON.stringify({
+          originalContent: 'Scheduled content',
+          targetPlatform: 'linkedin',
+          tone: 'professional',
+          hashtags: true
+        }),
+        platformsJson: JSON.stringify(['linkedin']),
+        scheduledAt
+      });
+
+      const jobs = getAllScheduledJobs();
+      const found = jobs.find((job) => job.id === 'job_1');
+      expect(found).toBeDefined();
+      expect(found?.status).toBe('pending');
+    });
+
+    it('should claim due jobs only once', () => {
+      saveScheduledJob({
+        id: 'job_2',
+        inputJson: JSON.stringify({
+          originalContent: 'Due content',
+          targetPlatform: 'threads',
+          tone: 'casual',
+          hashtags: true
+        }),
+        platformsJson: JSON.stringify(['threads']),
+        scheduledAt: new Date(Date.now() - 1000).toISOString()
+      });
+
+      const dueJobs = getDueScheduledJobs(new Date().toISOString());
+      expect(dueJobs.map((job) => job.id)).toContain('job_2');
+
+      expect(claimScheduledJob('job_2')).toBe(true);
+      expect(claimScheduledJob('job_2')).toBe(false);
+    });
+
+    it('should update scheduled job to published or failed', () => {
+      saveScheduledJob({
+        id: 'job_3',
+        inputJson: JSON.stringify({
+          originalContent: 'status update',
+          targetPlatform: 'instagram',
+          tone: 'engaging',
+          hashtags: true,
+          mediaUrls: ['https://example.com/demo.jpg']
+        }),
+        platformsJson: JSON.stringify(['instagram']),
+        scheduledAt: new Date(Date.now() + 10_000).toISOString()
+      });
+
+      markScheduledJobPublished('job_3');
+      let saved = getAllScheduledJobs().find((job) => job.id === 'job_3');
+      expect(saved?.status).toBe('published');
+
+      markScheduledJobFailed('job_3', 'mock fail');
+      saved = getAllScheduledJobs().find((job) => job.id === 'job_3');
+      expect(saved?.status).toBe('failed');
+      expect(saved?.error).toBe('mock fail');
+    });
+
+    it('should cancel pending scheduled job', () => {
+      saveScheduledJob({
+        id: 'job_4',
+        inputJson: JSON.stringify({
+          originalContent: 'cancel me',
+          targetPlatform: 'linkedin',
+          hashtags: true
+        }),
+        platformsJson: JSON.stringify(['linkedin']),
+        scheduledAt: new Date(Date.now() + 10_000).toISOString()
+      });
+
+      const cancelled = cancelScheduledJob('job_4');
+      expect(cancelled).toBe(true);
+
+      const saved = getAllScheduledJobs().find((job) => job.id === 'job_4');
+      expect(saved?.status).toBe('cancelled');
     });
   });
 });
