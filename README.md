@@ -43,6 +43,7 @@ cp .env.example .env
 OPENAI_API_KEY=your_api_key
 OPENAI_API_BASE=
 OPENAI_MODEL=gpt-4-turbo-preview
+APP_API_KEY=your_private_api_key
 ```
 
 - Leave `OPENAI_API_BASE` empty to use the official OpenAI endpoint.
@@ -74,6 +75,7 @@ Open:
 ```bash
 curl -X POST http://localhost:3000/generate/all \
   -H "Content-Type: application/json" \
+  -H "x-api-key: your_private_api_key" \
   -d '{
     "originalContent": "We just shipped a new analytics feature for PM teams.",
     "tone": "professional",
@@ -87,6 +89,7 @@ curl -X POST http://localhost:3000/generate/all \
 ```bash
 curl -X POST http://localhost:3000/generate \
   -H "Content-Type: application/json" \
+  -H "x-api-key: your_private_api_key" \
   -d '{
     "originalContent": "We just shipped a new analytics feature.",
     "targetPlatform": "linkedin",
@@ -104,6 +107,7 @@ See full API details in `docs/API.md`.
 | `OPENAI_API_KEY` | Yes | API key for content generation |
 | `OPENAI_API_BASE` | No | OpenAI-compatible base URL |
 | `OPENAI_MODEL` | No | Model name |
+| `APP_API_KEY` | Recommended | Protect API endpoints (`x-api-key` or `Authorization: Bearer`) |
 | `PORT` | No | Server port (default `3000`) |
 | `LOG_LEVEL` | No | Log level (default `info`) |
 | `THREADS_ACCESS_TOKEN` | Required for posting | Threads posting token |
@@ -148,6 +152,10 @@ Check in this order:
 ### Scheduling/posting fails
 
 Make sure platform access tokens and user IDs are present and not expired.
+
+### `401 Unauthorized`
+
+If `APP_API_KEY` is set, include `x-api-key` (or `Authorization: Bearer <key>`) in API requests.
 
 ## Project Structure
 

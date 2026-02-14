@@ -2,6 +2,8 @@
 
 ## Endpoints
 
+> 若有設定 `APP_API_KEY`，以下受保護端點需加上 `x-api-key: <your_key>` 或 `Authorization: Bearer <your_key>`：`/generate`、`/generate/all`、`/history`、`/history/:platform`、`/post/:platform`、`/schedule`、`/scheduled`。
+
 ### Generate Content
 
 Generate platform-specific content from original content.
@@ -106,12 +108,15 @@ Content-Type: application/json
 {
   "content": {
     "platform": "threads",
-    "text": "Your post content"
+    "text": "Your post content",
+    "mediaUrls": ["https://example.com/demo.jpg"]
   }
 }
 ```
 
 **Platform:** `threads`, `linkedin`, `instagram`
+
+> `instagram` 必須提供 `content.mediaUrls`（至少一個圖片 URL）。
 
 ---
 
@@ -127,12 +132,15 @@ Content-Type: application/json
   "content": {
     "originalContent": "Your content",
     "targetPlatform": "linkedin",
-    "outputLanguage": "en"
+    "outputLanguage": "en",
+    "mediaUrls": ["https://example.com/demo.jpg"]
   },
   "scheduledAt": "2024-01-15T10:00:00Z",
   "platforms": ["linkedin", "threads"]
 }
 ```
+
+> 若 `platforms` 包含 `instagram`，`content.mediaUrls` 為必填。
 
 **Response:**
 ```json
@@ -179,6 +187,7 @@ GET /
 | `OPENAI_API_KEY` | Yes | OpenAI API key |
 | `OPENAI_MODEL` | No | Model (default: gpt-4-turbo-preview) |
 | `OPENAI_API_BASE` | No | OpenAI compatible base URL (default: official OpenAI endpoint) |
+| `APP_API_KEY` | Recommended | API endpoint protection key |
 | `THREADS_ACCESS_TOKEN` | For posting | Threads access token |
 | `THREADS_USER_ID` | For posting | Threads user id |
 | `LINKEDIN_ACCESS_TOKEN` | For posting | LinkedIn access token |
